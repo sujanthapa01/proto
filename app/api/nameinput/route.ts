@@ -14,6 +14,9 @@ export async function POST(req: NextRequest) {
                 name
             }
         })
+ console.log(user)
+
+
       return NextResponse.json({ ok: true,user }, { status: 200 })
     } catch (error) {
         console.error('Error processing data:', error);

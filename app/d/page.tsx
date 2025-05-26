@@ -12,11 +12,13 @@ function Index() {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [nameInput, setNameInput] = useState<string>('')
+  const [email, setEmail] = useState<string | null>('')
 
   console.log("data", data)
 
   const router = useRouter()
   useEffect(() => {
+    setEmail(localStorage.getItem('email'))
     const checkLogin = async () => {
       const { data } = await supabase.from('User').select('is_login').eq('email', localStorage.getItem('email')).single()
       const isLoggedIn = data?.is_login;
@@ -26,7 +28,7 @@ function Index() {
       }
     }
     checkLogin()
-  },[])
+  }, [])
 
   const searchParams = useSearchParams()
   const params = searchParams.get("name")
@@ -85,29 +87,30 @@ function Index() {
     }
   }
 
-const logout = async () => {
-  setLoading(true)
-  setError(null)
-  
- try{
+  const logout = async () => {
+    setLoading(true)
+    setError(null)
 
-  const userMail = localStorage.getItem('email')
-console.log(userMail)
+    try {
 
- const response = await axios.post('/api/auth',{userMail,type: 'logout'}, {timeout:20000})
-console.log(response.data)
- }catch(error:any){
-  if(error.code === 'ECONNABORTED'){
-  setError("Request timed out after 20 seconds.")
-  }else {
+      const userMail = localStorage.getItem('email')
+      console.log(userMail)
+      const response = await axios.post('/api/auth', { userMail, type: 'logout' }, { timeout: 20000 })
+      console.log(response.data)
+      localStorage.removeItem('email')
+    } catch (error: any) {
+      if (error.code === 'ECONNABORTED') {
+        setError("Request timed out after 20 seconds.")
+      } else {
         setError("Something went wrong.")
       }
- 
- }
-}
+
+    }
+  }
 
   return (
-    <div className="flex h-screen w-full justify-center items-center">
+    <div className="flex h-screen w-full justify-center items-center flex-col">
+      <h1>{email}</h1>
       <div className="space-y-6 w-full max-w-md px-4 text-center flex flex-col items-center justify-center">
         {loading && <p>Loading...</p>}
         {!loading && error && <p className="text-red-500">{error}</p>}
@@ -131,8 +134,8 @@ console.log(response.data)
             save
           </button>
         </div>
-<Button onClick={logout}>logout</Button>
-        
+        <Button onClick={logout}>logout</Button>
+
       </div>
     </div>
 

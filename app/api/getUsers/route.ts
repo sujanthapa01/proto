@@ -6,9 +6,12 @@ export async function GET(req: NextRequest) {
   const name = searchParams.get("name");
 
   try {
-    const data = await prisma.user.findMany({
+    const users= await prisma.user.findMany({
       where: name ? { name } : {}
     });
+
+const data = users.filter((user) => !user.private)
+console.log("getuser data : ",data)
 
     return NextResponse.json({ data, success: true }, { status: 200 });
   } catch (error) {

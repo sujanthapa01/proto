@@ -13,7 +13,7 @@ const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
     password: z.string().min(6, 'atleast 6 letters are required').regex(/\d/, "Password must contain at least one number")
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special symbol"),
-    username: z.string().min(3, 'Username must be at least 3 characters long').max(20, 'Username must be at most 20 characters long')
+ 
 });
 
 
@@ -22,7 +22,7 @@ const signupSchema = loginSchema.extend({
     .min(3, 'Username must be at least 3 characters long')
     .max(20, 'Username must be at most 20 characters long'),
 })
-type User = z.infer<typeof loginSchema>
+type User = z.infer<typeof loginSchema | typeof signupSchema >
 
 function Auth() {
     const [fromData, setFromData] = useState<User>({
