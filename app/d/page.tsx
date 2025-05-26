@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import UserList from '@/components/userList'
 import { useSearchParams } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
 function Index() {
   const [data, setData] = useState<any[]>([])
@@ -10,6 +13,18 @@ function Index() {
   const [error, setError] = useState<string | null>(null)
   const [nameInput, setNameInput] = useState<string>('')
 
+  const router = useRouter()
+  useEffect(() => {
+    const checkLogin = async () => {
+      const { data, error } = await supabase.from('User').select('is_login')
+      const isLoggedIn = data && data[0]?.is_login;
+      console.log(isLoggedIn)
+      if (!isLoggedIn ) {
+        router.push('/')
+      }
+    }
+    checkLogin()
+  },[])
 
   const searchParams = useSearchParams()
   const params = searchParams.get("name")
@@ -68,6 +83,26 @@ function Index() {
     }
   }
 
+const logout = async () => {
+  setLoading(true)
+  setError(null)
+  
+ try{
+
+  const userMail = localStorage.getItem('email')
+console.log(userMail)
+
+ const response = await axios.post('/api/auth',{userMail,type: 'logout'}, {timeout:20000})
+console.log(response.data)
+ }catch(error:any){
+  if(error.code === 'ECONNABORTED'){
+  setError("Request timed out after 20 seconds.")
+  }else {
+        setError("Something went wrong.")
+      }
+ 
+ }
+}
 
   return (
     <div className="flex h-screen w-full justify-center items-center">
@@ -77,7 +112,7 @@ function Index() {
 
 
         <div className="w-full">
-          <UserList users={data} loading={loading} error={error} fnc={fetchUsers}/>
+          <UserList users={data} loading={loading} error={error} fnc={fetchUsers} />
         </div>
 
         <div className="flex flex-col gap-4 items-center">
@@ -94,6 +129,8 @@ function Index() {
             save
           </button>
         </div>
+<Button onClick={logout}>logout</Button>
+        
       </div>
     </div>
 
