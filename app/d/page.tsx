@@ -13,13 +13,15 @@ function Index() {
   const [error, setError] = useState<string | null>(null)
   const [nameInput, setNameInput] = useState<string>('')
 
+  console.log("data", data)
+
   const router = useRouter()
   useEffect(() => {
     const checkLogin = async () => {
-      const { data, error } = await supabase.from('User').select('is_login')
-      const isLoggedIn = data && data[0]?.is_login;
-      console.log(isLoggedIn)
-      if (!isLoggedIn ) {
+      const { data } = await supabase.from('User').select('is_login').eq('email', localStorage.getItem('email')).single()
+      const isLoggedIn = data?.is_login;
+      console.log("is_login", isLoggedIn)
+      if (isLoggedIn !== true) {
         router.push('/')
       }
     }

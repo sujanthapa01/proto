@@ -7,6 +7,7 @@ import axios from 'axios'
 interface User {
     id: string
     name: string
+    username: string | null
     createdAt: string
 }
 
@@ -42,8 +43,9 @@ const UserList: React.FC<UserListProps> = ({ users, loading, error, fnc }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                 >
-                    {users.map((user) => (
-                        <div className="flex gap-4 w-full justify-between items-center" key={user.id}>
+                    {users.map(({name, username, id}: User ) => (
+                        <div className="flex gap-4 w-full justify-between items-center" key={id}>
+                    <div className=' rounded-full  flex justify-center items-center'>{username ? username : (<span className='text-sm break-words w-[45]'>{id}</span>)}</div>
                             <motion.span
                                 className="text-white bg-indigo-700 py-4 px-4 min-w-[5rem] rounded w-full"
                                 initial={{ opacity: 0, y: -10 }}
@@ -52,10 +54,10 @@ const UserList: React.FC<UserListProps> = ({ users, loading, error, fnc }) => {
                                 transition={{ duration: 0.3 }}
                                 layout
                             >
-                                {user.name}
+                                {name ? name : `${id} joined`} 
                             </motion.span>
 
-                            <Button className="bg-red-500/50 cursor-pointer h-full" variant="destructive" onClick={() => handleDeleteClick(user.id)}>
+                            <Button className="bg-red-500/50 cursor-pointer h-full" variant="destructive" onClick={() => handleDeleteClick(id)}>
                                 delete
                             </Button>
                         </div>

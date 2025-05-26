@@ -9,25 +9,34 @@ import { z } from 'zod'
 import axios from 'axios'
 import { motion } from 'framer-motion'
 
-const userSchema = z.object({
+const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
     password: z.string().min(6, 'atleast 6 letters are required').regex(/\d/, "Password must contain at least one number")
-        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special symbol")
+        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special symbol"),
+    username: z.string().min(3, 'Username must be at least 3 characters long').max(20, 'Username must be at most 20 characters long')
 });
 
-type User = z.infer<typeof userSchema>
 
-function auth() {
+const signupSchema = loginSchema.extend({
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters long')
+    .max(20, 'Username must be at most 20 characters long'),
+})
+type User = z.infer<typeof loginSchema>
+
+function Auth() {
     const [fromData, setFromData] = useState<User>({
         email: '',
-        password: ''
+        password: '',
+        username: ''
+        
     })
     const [error, setError] = useState<string | null>('')
 
 
     const handlelogin = async () => {
         const type = 'login'
-        const result = userSchema.safeParse(fromData)
+        const result = loginSchema.safeParse(fromData)
         console.log(result)
         if (!result.success) {
             setError(result.error.errors[0].message);
@@ -42,7 +51,7 @@ function auth() {
             localStorage.setItem('email', fromData.email)
         } catch (e) {
             setError("faild to login")
-        }
+        } 
 
         setError(null);
         console.log('✅ Valid data:', result.data);
@@ -52,7 +61,15 @@ function auth() {
 
     const signup = async () => {
 
+        const result = signupSchema.safeParse(fromData)
+        if(!result.success){
+               setError(result.error.errors[0].message);
+               return
+        }
+
         try {
+
+             localStorage.setItem('email', fromData.email)
             const response = await axios.post('/api/auth', { ...fromData, type: 'signup' }, { timeout: 20000 })
             console.log(response.data)
 
@@ -113,6 +130,10 @@ function auth() {
                                 <Label htmlFor="email">Email</Label>
                                 <Input id="email" value={fromData?.email} onChange={(e) => setFromData((prev) => ({ ...prev, email: e.target.value }))} />
                             </div>
+                             <div className="space-y-1">
+                                <Label htmlFor="email">Username</Label>
+                                <Input id="email" value={fromData?.username} onChange={(e) => setFromData((prev) => ({ ...prev, username: e.target.value }))} />
+                            </div>
                             <div className="space-y-1">
                                 <Label htmlFor="password">Pssword</Label>
                                 <Input id="password" value={fromData?.password} onChange={(e) => setFromData((prev) => ({...prev, password: e.target.value}))} />
@@ -132,4 +153,4 @@ function auth() {
     )
 }
 
-export default auth
+export default Auth
