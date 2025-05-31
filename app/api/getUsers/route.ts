@@ -3,15 +3,16 @@ import prisma from "@/lib/primsaClient";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const name = searchParams.get("name");
+  const content = searchParams.get("message");
 
   try {
-    const users= await prisma.user.findMany({
-      where: name ? { name } : {}
+    const users = await prisma.messeges.findMany({
+      where: content ? { content } : {}
     });
 
-const data = users.filter((user) => !user.private)
-console.log("getuser data : ",data)
+
+    console.log("getuser data : ", users)
+    const data = users.filter((msg) => !msg.private)
 
     return NextResponse.json({ data, success: true }, { status: 200 });
   } catch (error) {

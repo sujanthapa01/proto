@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import axios from 'axios'
 import UserList from '@/components/userList'
 import { useSearchParams } from 'next/navigation'
@@ -11,7 +11,8 @@ function Index() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [nameInput, setNameInput] = useState<string>('')
+  // message contain actual messages
+  const [message, setmessage] = useState<string>('')
   const [email, setEmail] = useState<string | null>('')
 
   console.log("data", data)
@@ -20,7 +21,9 @@ function Index() {
   useEffect(() => {
     setEmail(localStorage.getItem('email'))
     const checkLogin = async () => {
-      const { data } = await supabase.from('User').select('is_login').eq('email', localStorage.getItem('email')).single()
+      const { data } = await supabase.from('User').select('id,is_login',).eq('email', localStorage.getItem('email')).single()
+      console.log(data)
+      localStorage.setItem('id', data?.id)
       const isLoggedIn = data?.is_login;
       console.log("is_login", isLoggedIn)
       if (isLoggedIn !== true) {
@@ -31,10 +34,10 @@ function Index() {
   }, [])
 
   const searchParams = useSearchParams()
-  const params = searchParams.get("name")
+  const params = searchParams.get("content")
 
 
-  const url = params ? `/api/getUsers?name=${params}` : "/api/getUsers"
+  const url = params ? `/api/getUsers?content=${params}` : "/api/getUsers"
 
 
   const fetchUsers = async () => {
@@ -62,17 +65,21 @@ function Index() {
   }, [])
 
 
+
+
   const fetchData = async () => {
     setLoading(true)
     setError(null)
+    const userId = localStorage.getItem('id')
+    console.log(message, userId)
     try {
-      if (nameInput === '') return
-      const response = await axios.post('/api/nameinput', { name: nameInput }, { timeout: 20000 })
+      if (message === '') return
+      const response = await axios.post('/api/message', { message: message, userId :userId }, { timeout: 20000 })
       if (response.data.ok) {
         console.log('success', response.data.user)
         const newUser = response.data.user
         setData((prev) => [newUser, ...prev])
-        setNameInput('')
+        setmessage('')
       }
 
       await fetchUsers()
@@ -123,8 +130,8 @@ function Index() {
         <div className="flex flex-col gap-4 items-center">
           <input
             type="text"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
+            value={message}
+            onChange={(e) => setmessage(e.target.value)}
             className="bg-amber-50 h-8 text-black w-full rounded px-2"
           />
           <button

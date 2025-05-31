@@ -6,7 +6,7 @@ import axios from 'axios'
 
 interface User {
     id: string
-    name: string
+   content: string
     username: string | null
     createdAt: string
 }
@@ -22,13 +22,16 @@ const UserList: React.FC<UserListProps> = ({ users, loading, error, fnc }) => {
 
 
     const deleteUser = async ({ userid }: { userid: string }) => {
-
-        const response = await axios.post('/api/deleteUser', {
-            userid
+        const response = await axios.post('/api/deleteMessage', {
+           messageId: userid
         })
         fnc()
         console.log(response.data)
     }
+
+
+
+
 
     const handleDeleteClick = (userid: string) => {
         deleteUser({ userid });
@@ -43,7 +46,7 @@ const UserList: React.FC<UserListProps> = ({ users, loading, error, fnc }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                 >
-                    {users.map(({name, username, id}: User ) => (
+                    {users.map(({content, username, id}: User ) => (
                         <div className="flex gap-4 w-full justify-between items-center" key={id}>
                     <div className=' rounded-full  flex justify-center items-center'>{username ? username : (<span className='text-sm break-words w-[45]'>{id}</span>)}</div>
                             <motion.span
@@ -54,7 +57,7 @@ const UserList: React.FC<UserListProps> = ({ users, loading, error, fnc }) => {
                                 transition={{ duration: 0.3 }}
                                 layout
                             >
-                                {name ? name : `${id} joined`} 
+                                {content ? content : `${id} joined`} 
                             </motion.span>
 
                             <Button className="bg-red-500/50 cursor-pointer h-full" variant="destructive" onClick={() => handleDeleteClick(id)}>
