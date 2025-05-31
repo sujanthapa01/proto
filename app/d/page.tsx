@@ -19,8 +19,8 @@ function Index() {
   const params = searchParams.get("content")
   const url = params ? `/api/getUsers?content=${params}` : "/api/getUsers"
 
-  // ✅ Fetch messages from API
-  const fetchUsers = async () => {
+// fetch data from api specific message
+  const fetchMessage = async () => {
     setLoading(true)
     setError(null)
     try {
@@ -37,7 +37,7 @@ function Index() {
     }
   }
 
-  // ✅ Send a new message
+// send messages to backend
   const fetchData = async () => {
     setLoading(true)
     setError(null)
@@ -57,7 +57,7 @@ function Index() {
         setMessage('')
       }
 
-      await fetchUsers()
+      await fetchMessage()
     } catch (err: any) {
       if (err.code === 'ECONNABORTED') {
         setError("Request timed out after 20 seconds.")
@@ -69,7 +69,7 @@ function Index() {
     }
   }
 
-  // ✅ Logout
+  // Logout
   const logout = async () => {
     setLoading(true)
     setError(null)
@@ -95,7 +95,7 @@ function Index() {
     }
   }
 
-  // ✅ useEffect: auth check + fetch + real-time subscription
+  // useEffect: auth check + fetch + real-time subscription
   useEffect(() => {
     const init = async () => {
       const emailFromStorage = localStorage.getItem('email')
@@ -116,9 +116,9 @@ function Index() {
         return
       }
 
-      await fetchUsers()
+      await fetchMessage()
 
-      // ✅ Setup real-time subscription
+      // real-time subscription
       const channel = supabase
         .channel('messages-listener')
         .on(
@@ -130,12 +130,12 @@ function Index() {
           },
           (payload) => {
             console.log('Realtime update received:', payload)
-            fetchUsers() // re-fetch data
+            fetchMessage() // re-fetch data
           }
         )
         .subscribe()
 
-      // ✅ Cleanup subscription on unmount
+      // unmount the channel
       return () => {
         supabase.removeChannel(channel)
       }
@@ -153,7 +153,7 @@ function Index() {
         {!loading && error && <p className="text-red-500">{error}</p>}
 
         <div className="w-full">
-          <UserList users={data} loading={loading} error={error} fnc={fetchUsers} />
+          <UserList users={data} loading={loading} error={error} fnc={fetchMessage} />
         </div>
 
         <div className="flex flex-col gap-4 items-center">
